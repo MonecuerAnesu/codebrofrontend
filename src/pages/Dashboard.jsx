@@ -1,4 +1,3 @@
-// src/pages/Dashboard.jsx
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import supabase from '../supabaseClient';
@@ -41,10 +40,10 @@ function Dashboard() {
     try {
       setLoading(true);
       setMessage('');
-      const res = await axios.get('http://localhost:5000/api/auto-news/fetch');
-      setMessage(`✅ Fetched and inserted ${res.data.inserted} news articles.`);
+      const res = await axios.get('https://codebro-backend.onrender.com/api/auto-news/fetch');
+      setMessage(`Fetched and inserted ${res.data.inserted} news articles.`);
     } catch (error) {
-      setMessage('❌ Failed to fetch news.');
+      setMessage('Failed to fetch news.');
       console.error(error);
     } finally {
       setLoading(false);
@@ -55,7 +54,6 @@ function Dashboard() {
     const confirm = window.confirm('Are you sure you want to delete this portfolio item?');
     if (!confirm) return;
 
-    // Delete image from storage
     const fileName = imageUrl.split('/').pop();
     const { error: storageError } = await supabase
       .storage
@@ -64,11 +62,10 @@ function Dashboard() {
 
     if (storageError) {
       console.error('Storage error:', storageError);
-      setMessage('❌ Failed to delete image.');
+      setMessage('Failed to delete image.');
       return;
     }
 
-    // Delete from DB
     const { error: dbError } = await supabase
       .from('portfolio')
       .delete()
@@ -76,9 +73,9 @@ function Dashboard() {
 
     if (dbError) {
       console.error('DB error:', dbError);
-      setMessage('❌ Failed to delete portfolio item.');
+      setMessage('Failed to delete portfolio item.');
     } else {
-      setMessage('✅ Portfolio item deleted.');
+      setMessage('Portfolio item deleted.');
       fetchPortfolio();
     }
   };
@@ -86,8 +83,18 @@ function Dashboard() {
   return (
     <div className="p-6 text-white bg-black min-h-screen">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-4">Admin Dashboard</h1>
-        <p className="mb-4">Welcome, {user?.email}</p>
+        <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
+        <p className="mb-2 text-gray-300">Welcome, {user?.email}</p>
+        <p className="mb-4 text-red-400 font-semibold">
+          Only Elshaddai has access to this place. Please do not try.
+        </p>
+
+        <button
+          onClick={() => navigate('/upload')}
+          className="mb-6 bg-yellow-500 hover:bg-yellow-600 px-4 py-2 rounded text-sm text-white transition"
+        >
+          Upload Portfolio
+        </button>
 
         <button
           onClick={handleFetchNews}
@@ -120,7 +127,7 @@ function Dashboard() {
                     href={item.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-400 text-sm underline"
+                    className="text-blue-400 text-sm underline block mt-1"
                   >
                     Visit
                   </a>

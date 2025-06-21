@@ -6,12 +6,12 @@ import Dashboard from './pages/Dashboard';
 import Portfolio from './pages/Portfolio';
 import NewsFeed from './pages/NewsFeed';
 import UploadPortfolio from './pages/UploadPortfolio';
-import About from './pages/About'; // ✅ NEW
-import supabase from './supabaseClient';
+import About from './pages/About';
 
+import supabase from './supabaseClient';
 import logo from './assets/ChatGPT-LOGO.png';
 
-// ✅ Landing Page With Real Portfolio + About Button
+// ✅ Landing Page Component
 function LandingPage() {
   const navigate = useNavigate();
   const [items, setItems] = useState([]);
@@ -49,6 +49,7 @@ function LandingPage() {
         >
           Admin Login
         </button>
+        <p className="text-xs text-red-300 mt-1 text-right">Only Elshaddai has access</p>
       </div>
 
       {/* Logo & Title */}
@@ -83,7 +84,7 @@ function LandingPage() {
             {items.map((item) => (
               <div
                 key={item.id}
-                onClick={() => window.open(item.link_url, '_blank')}
+                onClick={() => window.open(item.link, '_blank')}
                 className="cursor-pointer bg-gray-800 rounded shadow p-4 hover:scale-105 transition"
               >
                 <img
@@ -102,7 +103,7 @@ function LandingPage() {
   );
 }
 
-// ✅ App Wrapper with All Routes
+// ✅ Main App Wrapper
 function App() {
   const [loading, setLoading] = useState(true);
   const [logoVisible, setLogoVisible] = useState(false);
@@ -138,10 +139,10 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/portfolio" element={<Portfolio />} />
         <Route path="/upload" element={<UploadPortfolio />} />
+        <Route path="/portfolio" element={<Portfolio />} />
         <Route path="/news" element={<NewsFeed />} />
-        <Route path="/about" element={<About />} /> {/* ✅ New About Route */}
+        <Route path="/about" element={<About />} />
       </Routes>
     </Router>
   );
