@@ -3,77 +3,111 @@ import supabase from '../supabaseClient';
 
 function UploadPortfolio() {
   const [title, setTitle] = useState('');
-  const [desc, setDesc] = useState('');
-  const [file, setFile] = useState(null);
+  const [description, setDescription] = useState('');
+  const [link, setLink] = useState('');
+  const [image, setImage] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [message, setMessage] = useState('');
 
-  const handleUpload = async () => {
-    if (!file) return alert('Select a file first');
+  const handleUpload = async (e) => {
+    e.preventDefault();
     setUploading(true);
+    setMessage('');
 
-    const filePath = `portfolio/${Date.now()}_${file.name}`;
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('portfolio')
-      .upload(filePath, file);
-
-    if (uploadError) {
-      alert('Failed to upload image');
+    if (!image) {
+      setMessage('❌ Please select an image.');
       setUploading(false);
       return;
     }
 
-    const image_url = `https://kxgvlgecatlbdekjvmvm.supabase.co/storage/v1/object/public/portfolio/${filePath}`;
+    const fileExt = image.name.split('.').pop();
+    const fileName = `${Date.now()}.${fileExt}`;
+    const filePath = `${fileName}`; // no subfolder to avoid path errors
 
-    const { error: insertError } = await supabase.from('portfolio').insert([
-      { title, description: desc, image_url },
-    ]);
+    // Upload image to Supabase Storage
+    const { error: uploadError } = await supabase.storage
+      .from('portfolio-images')
+      .upload(filePath, image);
+
+    if (uploadError) {
+      console.error(uploadError);
+      setMessage(`❌ Image upload failed: ${uploadError.message}`);
+      setUploading(false);
+      return;
+    }
+
+    // Get public URL for uploaded image
+    const { data: urlData } = supabase.storage
+      .from('portfolio-images')
+      .getPublicUrl(filePath);
+
+    const imageUrl = urlData?.publicUrl;
+
+    // Insert new portfolio item into Supabase table
+    const { error: insertError } = await supabase
+      .from('portfolio')
+      .insert([{ title, description, image_url: imageUrl, link }]);
 
     if (insertError) {
-      alert('Failed to insert portfolio item');
+      console.error(insertError);
+      setMessage(`❌ Failed to save: ${insertError.message}`);
     } else {
-      alert('Upload successful!');
+      setMessage('✅ Portfolio item uploaded successfully!');
       setTitle('');
-      setDesc('');
-      setFile(null);
+      setDescription('');
+      setLink('');
+      setImage(null);
     }
 
     setUploading(false);
   };
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-6">
-      <div className="bg-gray-900 p-6 rounded-lg w-full max-w-md shadow-lg border border-gray-800">
-        <h2 className="text-2xl font-bold mb-4">Upload Portfolio</h2>
+    <div className="min-h-screen bg-black text-white p-6">
+      <h1 className="text-2xl font-bold mb-6 text-center">Upload Portfolio Item</h1>
 
+      <form onSubmit={handleUpload} className="max-w-xl mx-auto space-y-4">
         <input
           type="text"
           placeholder="Title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="w-full mb-3 p-2 rounded bg-gray-800 text-white"
+          className="w-full p-3 rounded bg-gray-900 border border-gray-700"
+          required
         />
-
         <textarea
           placeholder="Description"
-          value={desc}
-          onChange={(e) => setDesc(e.target.value)}
-          className="w-full mb-3 p-2 rounded bg-gray-800 text-white"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="w-full p-3 rounded bg-gray-900 border border-gray-700"
+          required
         />
-
+        <input
+          type="url"
+          placeholder="Project Link (optional)"
+          value={link}
+          onChange={(e) => setLink(e.target.value)}
+          className="w-full p-3 rounded bg-gray-900 border border-gray-700"
+        />
         <input
           type="file"
-          onChange={(e) => setFile(e.target.files[0])}
-          className="mb-4 text-sm"
+          accept="image/*"
+          onChange={(e) => setImage(e.target.files[0])}
+          className="w-full"
+          required
         />
-
         <button
-          onClick={handleUpload}
+          type="submit"
+          className="bg-green-500 hover:bg-green-600 px-6 py-2 rounded text-white transition w-full"
           disabled={uploading}
-          className="w-full bg-blue-600 hover:bg-blue-700 transition py-2 rounded"
         >
-          {uploading ? 'Uploading...' : 'Upload'}
+          {uploading ? 'Uploading...' : 'Upload Portfolio'}
         </button>
-      </div>
+      </form>
+
+      {message && (
+        <p className="mt-4 text-center text-sm text-yellow-400">{message}</p>
+      )}
     </div>
   );
 }

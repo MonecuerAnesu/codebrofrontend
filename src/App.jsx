@@ -6,16 +6,42 @@ import Dashboard from './pages/Dashboard';
 import Portfolio from './pages/Portfolio';
 import NewsFeed from './pages/NewsFeed';
 import UploadPortfolio from './pages/UploadPortfolio';
+import About from './pages/About'; // ✅ NEW
+import supabase from './supabaseClient';
 
-import logo from './assets/ChatGPT-LOGO.png'; // replace with your CodeBro logo
+import logo from './assets/ChatGPT-LOGO.png';
 
-// ✅ New Landing Page Component
+// ✅ Landing Page With Real Portfolio + About Button
 function LandingPage() {
   const navigate = useNavigate();
+  const [items, setItems] = useState([]);
+
+  useEffect(() => {
+    const fetchPortfolio = async () => {
+      const { data, error } = await supabase
+        .from('portfolio')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (!error) setItems(data);
+    };
+
+    fetchPortfolio();
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white p-6">
-      {/* Admin Login Button in top right */}
+    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white p-6 relative">
+      {/* About Me (LEFT) */}
+      <div className="absolute top-4 left-4">
+        <button
+          onClick={() => navigate('/about')}
+          className="bg-gradient-to-r from-purple-600 to-pink-600 px-4 py-2 rounded text-sm text-white hover:scale-105 transition"
+        >
+          About Me
+        </button>
+      </div>
+
+      {/* Admin Login (RIGHT) */}
       <div className="absolute top-4 right-4">
         <button
           onClick={() => navigate('/login')}
@@ -25,7 +51,7 @@ function LandingPage() {
         </button>
       </div>
 
-      {/* Logo + Welcome Title */}
+      {/* Logo & Title */}
       <div className="flex flex-col items-center mb-6">
         <img
           src={logo}
@@ -47,38 +73,36 @@ function LandingPage() {
         </button>
       </div>
 
-      {/* Portfolio Preview */}
+      {/* Portfolio Display */}
       <div className="text-center mb-4">
         <h2 className="text-2xl font-semibold mb-4">Portfolio Showcase</h2>
-        {/* Embed Portfolio content here */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
-          {/* Fake items for now — replace with real fetched data */}
-          <div className="bg-gray-800 rounded shadow p-4">
-            <img
-              src="https://via.placeholder.com/300x200"
-              alt="Portfolio Item"
-              className="w-full h-40 object-cover rounded mb-2"
-            />
-            <h3 className="text-lg font-semibold">Project One</h3>
-            <p className="text-sm text-gray-400">Cool description of your project here.</p>
+        {items.length === 0 ? (
+          <p className="text-gray-400">No projects uploaded yet.</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
+            {items.map((item) => (
+              <div
+                key={item.id}
+                onClick={() => window.open(item.link_url, '_blank')}
+                className="cursor-pointer bg-gray-800 rounded shadow p-4 hover:scale-105 transition"
+              >
+                <img
+                  src={item.image_url}
+                  alt={item.title}
+                  className="w-full h-40 object-cover rounded mb-2"
+                />
+                <h3 className="text-lg font-semibold">{item.title}</h3>
+                <p className="text-sm text-gray-400">{item.description}</p>
+              </div>
+            ))}
           </div>
-          <div className="bg-gray-800 rounded shadow p-4">
-            <img
-              src="https://via.placeholder.com/300x200"
-              alt="Portfolio Item"
-              className="w-full h-40 object-cover rounded mb-2"
-            />
-            <h3 className="text-lg font-semibold">Project Two</h3>
-            <p className="text-sm text-gray-400">Showcasing features and links.</p>
-          </div>
-          {/* You can add more items here */}
-        </div>
+        )}
       </div>
     </div>
   );
 }
 
-// ✅ Main App Component
+// ✅ App Wrapper with All Routes
 function App() {
   const [loading, setLoading] = useState(true);
   const [logoVisible, setLogoVisible] = useState(false);
@@ -117,6 +141,7 @@ function App() {
         <Route path="/portfolio" element={<Portfolio />} />
         <Route path="/upload" element={<UploadPortfolio />} />
         <Route path="/news" element={<NewsFeed />} />
+        <Route path="/about" element={<About />} /> {/* ✅ New About Route */}
       </Routes>
     </Router>
   );

@@ -26,14 +26,14 @@ function Portfolio() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white py-10 px-4">
-      <h1 className="text-4xl font-bold text-center mb-10 animate-fade-in-down">🚀 CodeBro Portfolio</h1>
+      <h1 className="text-4xl font-bold text-center mb-10 animate-fade-in-down">CodeBro Portfolio</h1>
 
       {loading ? (
         <div className="flex justify-center items-center h-40">
           <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-b-4 border-green-400"></div>
         </div>
       ) : items.length === 0 ? (
-        <p className="text-center text-gray-400 text-lg">No portfolio items yet. Upload to see them here.</p>
+        <p className="text-center text-gray-400 text-lg">My Work</p>
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {items.map((item) => (
