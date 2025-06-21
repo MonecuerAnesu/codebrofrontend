@@ -13,9 +13,9 @@ function NewsFeed() {
         const response = await axios.get(
           `https://newsapi.org/v2/top-headlines?country=us&category=technology&pageSize=10&apiKey=${apiKey}`
         );
-        setArticles(response.data.articles);
+        setArticles(response.data.articles || []);
       } catch (error) {
-        console.error('Failed to fetch news:', error);
+        console.error('❌ Failed to fetch news:', error);
       } finally {
         setLoading(false);
       }
@@ -45,12 +45,14 @@ function NewsFeed() {
               className="block bg-gray-800 hover:bg-gray-700 transition rounded-lg p-4 shadow"
             >
               <img
-                src={article.urlToImage || 'https://via.placeholder.com/300x200'}
+                src={article.urlToImage || '/ChatGPT-Logo.png'}
                 alt={article.title}
                 className="w-full h-40 object-cover rounded mb-4"
               />
               <h2 className="text-lg font-semibold mb-2">{article.title}</h2>
-              <p className="text-sm text-gray-400">{article.description?.slice(0, 100)}...</p>
+              <p className="text-sm text-gray-400">
+                {article.description ? article.description.slice(0, 100) + '...' : 'No description available.'}
+              </p>
             </a>
           ))}
         </div>
