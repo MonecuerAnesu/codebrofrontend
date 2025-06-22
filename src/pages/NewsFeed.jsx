@@ -9,6 +9,12 @@ function NewsFeed() {
 
   useEffect(() => {
     const fetchNews = async () => {
+      if (!apiKey) {
+        console.error("❌ Missing News API key");
+        setLoading(false);
+        return;
+      }
+
       try {
         const response = await axios.get(
           `https://newsapi.org/v2/top-headlines?country=us&category=technology&pageSize=10&apiKey=${apiKey}`
@@ -50,7 +56,9 @@ function NewsFeed() {
                 className="w-full h-40 object-cover rounded mb-4"
               />
               <h2 className="text-lg font-semibold mb-2">{article.title}</h2>
-              <p className="text-sm text-gray-400">{article.description?.slice(0, 100)}...</p>
+              <p className="text-sm text-gray-400">
+                {article.description?.slice(0, 100)}...
+              </p>
             </a>
           ))}
         </div>
