@@ -1,4 +1,3 @@
-// src/pages/NewsFeed.jsx
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
@@ -6,7 +5,6 @@ function NewsFeed() {
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // ✅ Replace this with your actual News API key or store in VITE env
   const apiKey = import.meta.env.VITE_NEWS_API_KEY;
 
   useEffect(() => {
@@ -52,9 +50,7 @@ function NewsFeed() {
                 className="w-full h-40 object-cover rounded mb-4"
               />
               <h2 className="text-lg font-semibold mb-2">{article.title}</h2>
-              <p className="text-sm text-gray-400">
-                {article.description?.slice(0, 100) || 'No description...'}...
-              </p>
+              <p className="text-sm text-gray-400">{article.description?.slice(0, 100)}...</p>
             </a>
           ))}
         </div>
