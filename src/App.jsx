@@ -1,3 +1,4 @@
+// src/App.jsx
 import { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 
@@ -108,7 +109,12 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [logoVisible, setLogoVisible] = useState(false);
 
+  // ✅ Access API key (can be reused anywhere)
+  const newsApiKey = import.meta.env.VITE_NEWS_API_KEY;
+
   useEffect(() => {
+    console.log('🔑 News API Key:', newsApiKey);
+
     const timer1 = setTimeout(() => setLogoVisible(true), 700);
     const timer2 = setTimeout(() => setLoading(false), 1800);
     return () => {
